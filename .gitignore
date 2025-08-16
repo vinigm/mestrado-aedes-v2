@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos de dados e cache
+*.xlsx
+dados_cache.json
+
+# Ambiente virtual
+venv/
+env/
+.env
+
+# IDEs
+.vscode/
+.idea/
