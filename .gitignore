@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Arquivos de dados e cache
-*.xlsx
+# Arquivos de cache
 dados_cache.json
+
+# Dados históricos (manter no git)
+!dados_aedes_*.xlsx
 
 # Ambiente virtual
 venv/
