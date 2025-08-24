@@ -6,6 +6,10 @@ __pycache__/
 # Arquivos de cache
 dados_cache.json
 
+# Ignorar pasta de bases de dados
+Bases de dados/
+"Bases de dados"/*
+
 # Dados históricos (manter no git)
 !dados_aedes_*.xlsx
 
@@ -17,3 +21,12 @@ env/
 # IDEs
 .vscode/
 .idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+~$*
+.~lock.*
