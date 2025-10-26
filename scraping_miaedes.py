@@ -166,14 +166,41 @@ def process_data(lista_de_registros):
 
 def save_data(df, output_path):
     """
-    Salva o DataFrame processado em Excel.
+    Salva o DataFrame processado em Excel com nomenclatura padronizada.
+    Formato: dados_aedes_YYYYMMDD_weekid<id>_<numero>mosquitos.xlsx
     """
     try:
         # Garantir que o diretório existe
         os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
         
-        df.to_excel(output_path, index=False)
-        logging.info(f"Dados salvos em: {output_path}")
+        # Extrair informações para nomenclatura padronizada
+        total_mosquitos = df['total_mosquitos'].sum()
+        week_id = df['week_id'].iloc[0] if 'week_id' in df.columns else 'unknown'
+        
+        # Extrair data do caminho original ou usar data atual
+        date_str = datetime.now().strftime('%Y%m%d')
+        
+        # Criar nome padronizado
+        diretorio = os.path.dirname(output_path)
+        nome_padronizado = f"dados_aedes_{date_str}_weekid{week_id}_{total_mosquitos}mosquitos.xlsx"
+        final_path = os.path.join(diretorio, nome_padronizado)
+        
+        # Se o arquivo já existe, adiciona número sequencial
+        if os.path.exists(final_path):
+            base_name = f"dados_aedes_{date_str}_weekid{week_id}_{total_mosquitos}mosquitos"
+            counter = 1
+            while os.path.exists(final_path):
+                final_path = os.path.join(diretorio, f"{base_name}_{counter}.xlsx")
+                counter += 1
+        
+        df.to_excel(final_path, index=False)
+        logging.info(f"Dados salvos em: {final_path}")
+        
+        # Log da nomenclatura padronizada
+        logging.info(f"📊 Nomenclatura: {nome_padronizado}")
+        logging.info(f"🔢 Week_ID: {week_id}")
+        logging.info(f"🦟 Total mosquitos: {total_mosquitos}")
+        
     except Exception as e:
         logging.error(f"Erro ao salvar arquivo: {e}")
         raise
@@ -196,8 +223,8 @@ def main():
             USAR_CACHE = False
 
         # Definir nome do arquivo de saída
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_path = args.output or DEFAULT_OUTPUT.format(timestamp=timestamp)
+        date_only = datetime.now().strftime('%Y%m%d')
+        output_path = args.output or DEFAULT_OUTPUT.format(timestamp=date_only)
 
         # Executar pipeline de processamento
         logging.info("Iniciando coleta de dados")
