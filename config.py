@@ -1,4 +1,5 @@
 """Configurações para o script de coleta de dados do MiAedes."""
+import os
 
 # Configurações da URL e headers
 URL_BASE = 'https://www.miaedes.com.br/public-maps/client/72/region/72/weekly'
@@ -11,7 +12,12 @@ USAR_CACHE = True
 CACHE_DURATION = 3600  # segundos (1 hora)
 CACHE_FILE = 'dados_cache.json'
 
-# Configurações de output
+# Configurações de output - Caminhos alternativos (Windows e Linux)
+# Caminho Windows
+OUTPUT_DIR_WINDOWS = r'C:\Users\vinig\OneDrive\Documentos\Python Scripts\WebScrapingAedes\Raspagem'
+# Caminho Linux
+OUTPUT_DIR_LINUX = os.path.join(os.path.expanduser('~'), 'GoogleDrive', 'Mestrado', 'Mestrado mesmo', 'ScriptScrapping', 'Raspagem')
+
 DEFAULT_OUTPUT = 'Raspagem/dados_aedes_{timestamp}.xlsx'
 
 # Configurações de timeout

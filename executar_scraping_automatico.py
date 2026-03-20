@@ -37,7 +37,8 @@ def main():
         logging.info(f"Diretório de trabalho: {os.getcwd()}")
         logging.info("Iniciando scraping...")
         
-        result = subprocess.run([sys.executable, str(script_path)], 
+        # Usar "py" (Python Launcher) em vez de sys.executable para evitar problemas de PATH
+        result = subprocess.run(["py", str(script_path)], 
                               capture_output=True, text=True, cwd=str(script_dir))
         
         if result.returncode == 0:

@@ -13,6 +13,8 @@ import argparse
 from datetime import datetime
 import os
 import sys
+import tempfile
+import shutil
 from pathlib import Path
 import time
 
@@ -170,8 +172,26 @@ def save_data(df, output_path):
     Formato: dados_aedes_YYYYMMDD_weekid<id>_<numero>mosquitos.xlsx
     """
     try:
+        # Determinar diretório de saída com fallback entre Windows e Linux
+        diretorio_original = os.path.dirname(output_path)
+        
+        # Se o caminho original não é absoluto ou é apenas 'Raspagem', tentar caminhos configurados
+        if not os.path.isabs(output_path) or diretorio_original == 'Raspagem':
+            # Tentar caminho Linux primeiro (verificar se o diretório pai existe)
+            if OUTPUT_DIR_LINUX and os.path.exists(os.path.dirname(OUTPUT_DIR_LINUX)):
+                diretorio_original = OUTPUT_DIR_LINUX
+                logging.info(f"Usando diretório Linux: {diretorio_original}")
+            # Se não encontrar, tentar caminho Windows
+            elif OUTPUT_DIR_WINDOWS and os.path.exists(os.path.dirname(OUTPUT_DIR_WINDOWS)):
+                diretorio_original = OUTPUT_DIR_WINDOWS
+                logging.info(f"Usando diretório Windows: {diretorio_original}")
+            else:
+                # Se nenhum dos caminhos existe, usar o diretório atual
+                diretorio_original = os.path.join(os.getcwd(), 'Raspagem')
+                logging.info(f"Usando diretório padrão: {diretorio_original}")
+        
         # Garantir que o diretório existe
-        os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+        os.makedirs(diretorio_original, exist_ok=True)
         
         # Extrair informações para nomenclatura padronizada
         total_mosquitos = df['total_mosquitos'].sum()
@@ -180,20 +200,27 @@ def save_data(df, output_path):
         # Extrair data do caminho original ou usar data atual
         date_str = datetime.now().strftime('%Y%m%d')
         
-        # Criar nome padronizado
-        diretorio = os.path.dirname(output_path)
+        # Criar nome padronizado (usar diretorio_original já determinado acima)
         nome_padronizado = f"dados_aedes_{date_str}_weekid{week_id}_{total_mosquitos}mosquitos.xlsx"
-        final_path = os.path.join(diretorio, nome_padronizado)
+        final_path = os.path.join(diretorio_original, nome_padronizado)
         
         # Se o arquivo já existe, adiciona número sequencial
         if os.path.exists(final_path):
             base_name = f"dados_aedes_{date_str}_weekid{week_id}_{total_mosquitos}mosquitos"
             counter = 1
             while os.path.exists(final_path):
-                final_path = os.path.join(diretorio, f"{base_name}_{counter}.xlsx")
+                final_path = os.path.join(diretorio_original, f"{base_name}_{counter}.xlsx")
                 counter += 1
         
-        df.to_excel(final_path, index=False)
+        # Salvar em arquivo temporário primeiro (evita problemas com FUSE/rclone)
+        with tempfile.NamedTemporaryFile(mode='wb', suffix='.xlsx', delete=False) as tmp_file:
+            temp_path = tmp_file.name
+            df.to_excel(temp_path, index=False)
+        
+        # Copiar do temporário para o destino final
+        shutil.copy2(temp_path, final_path)
+        os.unlink(temp_path)  # Remover arquivo temporário
+        
         logging.info(f"Dados salvos em: {final_path}")
         
         # Log da nomenclatura padronizada
