@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Script para coletar e processar dados do MiAedes.
-Coleta dados de mosquitos, processa e salva em Excel.
-"""
-
 import requests
 from bs4 import BeautifulSoup
 import json
