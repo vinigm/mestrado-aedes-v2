@@ -10,6 +10,15 @@ dados_cache.json
 Bases de dados/
 "Bases de dados"/*
 
+# Arquivos grandes de bases brutas
+bases_governo/*.zip
+
+# Scripts temporários
+resumir_dengbr25.py
+
+# Pasta de projeto externo
+marilia_tosbiz_projeto_completo/
+
 # Dados históricos (manter no git)
 !dados_aedes_*.xlsx
 
